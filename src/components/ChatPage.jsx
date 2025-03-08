@@ -57,11 +57,38 @@ function ChatPage({ initialPrompt }) {
     };
 
     return (
-        <div className="flex h-screen bg-gray-900 text-white">
-        <div className="w-64 bg-gray-800 p-4">
+        <div className="flex h-screen bg-[#222222] text-white">
+        <div className="w-64 bg-[#222222] p-4">
             <h2 className="text-xl font-bold mb-4">Chat Menu</h2>
+            <nav>
+            <ul>
+                <li className="mb-4">
+                <a href="http://localhost:3001" className="hover:text-red-500">
+                    Home
+                </a>
+                </li>
+                <li className="mb-4">
+                <a href="#" className="hover:text-red-500">
+                    Profile
+                </a>
+                </li>
+                <li className="mb-4">
+                <a href="#" className="hover:text-red-500">
+                    Settings
+                </a>
+                </li>
+                <li className="mb-4">
+                <a
+                    href="http://localhost:3000"
+                    className="hover:text-red-500 block mb-4"
+                >
+                Logout
+                </a>
+                </li>
+            </ul>
+            </nav>
         </div>
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col min-h-screen bg-[linear-gradient(180deg,_#222222_0%,_#222222_70%,_#AC1B2D_100%)] border-8 border-black">
             <div className="flex-1 overflow-y-auto p-4">
             {messages.map((msg, i) => (
                 <div
