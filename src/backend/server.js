@@ -1,46 +1,47 @@
 // backend/server.js
 const express = require("express");
-const mongoose = require("mongoose");
-const cors = require("cors");
-const cookieSession = require("cookie-session");
+const session = require("express-session");
 const passport = require("passport");
 const keys = require("./config/keys");
+const cors = require("cors");
 
-// เรียกใช้การตั้งค่า Passport
+// เรียกใช้การตั้งค่า Passport (Google Strategy)
 require("./services/passportSetup");
 
 const authRoutes = require("./routes/authRoutes");
 
 const app = express();
 
-// เชื่อมต่อ MongoDB
-mongoose
-  .connect(keys.mongoURI)
-  .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.error("MongoDB error:", err));
-
-// ตั้งค่า middleware
 app.use(express.json());
-app.use(
-  cookieSession({
-    maxAge: 24 * 60 * 60 * 1000,
-    keys: [keys.cookieKey]
-  })
-);
 
-// เปิดใช้งาน CORS (อนุญาตให้ Frontend เข้าถึง API)
-app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+app.use(cors({
+  origin: "http://localhost:3000",
+  credentials: true
+}));
 
-// เริ่มต้น Passport
+// ใช้ express-session เพื่อจัดการ session
+app.use(session({
+  secret: 'someRandomCookieKey',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { maxAge: 24 * 60 * 60 * 1000 },
+}));
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Mount routes สำหรับ auth
+// Mount auth routes ที่ /auth
 app.use("/auth", authRoutes);
 
-// (ถ้ามี catch-all route สำหรับ static files หรือ API อื่น ๆ ให้อยู่หลัง auth routes)
-app.get("*", (req, res) => {
-  res.send("This is the fallback route");
+// หน้า Home สำหรับทดสอบ (คุณสามารถเปลี่ยนได้)
+app.get("/", (req, res) => {
+  res.send(`
+    <h1>Home</h1>
+    <p>${req.user ? "Logged in as " + req.user.displayName : "Not logged in"}</p>
+    <a href="/auth/google">Sign in with Google</a>
+  `);
 });
 
-app.listen(3001, () => console.log("Server running on port 3001"));
+const PORT = 3001;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});

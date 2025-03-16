@@ -1,9 +1,10 @@
 // frontend/src/components/ChatPage.jsx
 import React, { useState, useEffect } from "react";
+import SideBar from "./SideBar";
 
 const BACKEND_URL = "http://localhost:3001";
 
-function ChatPage({ initialPrompt }) {
+function ChatPage({ user, initialPrompt }) {
     const [messages, setMessages] = useState(() => {
         if (initialPrompt) {
         return [{ role: "user", content: initialPrompt }];
@@ -13,8 +14,9 @@ function ChatPage({ initialPrompt }) {
     const [inputValue, setInputValue] = useState("");
 
     useEffect(() => {
+        // เรียก /api/chat/history เพื่อดึงประวัติการสนทนา
         fetch(`${BACKEND_URL}/api/chat/history`, {
-        credentials: "include"
+        credentials: "include",
         })
         .then((res) => {
             if (!res.ok) throw new Error("Not authenticated");
@@ -30,64 +32,37 @@ function ChatPage({ initialPrompt }) {
 
     const handleSend = async () => {
         if (!inputValue.trim()) return;
-        const newMessage = { role: "user", content: inputValue.trim() };
 
+        // ส่งข้อความ user
+        const newMessage = { role: "user", content: inputValue.trim() };
         const response = await fetch(`${BACKEND_URL}/api/chat/send`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify(newMessage)
+        body: JSON.stringify(newMessage),
         });
         const savedMessage = await response.json();
         setMessages((prev) => [...prev, savedMessage]);
         setInputValue("");
 
+        // จำลองข้อความ assistant ตอบกลับ
         const assistantMessage = {
         role: "assistant",
-        content: "This is a simulated response from the model..."
+        content: "This is a simulated response from the model...",
         };
         const response2 = await fetch(`${BACKEND_URL}/api/chat/send`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify(assistantMessage)
+        body: JSON.stringify(assistantMessage),
         });
         const savedAssistant = await response2.json();
         setMessages((prev) => [...prev, savedAssistant]);
     };
 
     return (
-        <div className="flex h-screen bg-[#222222] text-white">
-        <div className="w-64 bg-[#222222] p-4">
-            <h2 className="text-xl font-bold mb-4">Chat Menu</h2>
-            <nav>
-            <ul>
-                <li className="mb-4">
-                <a href="http://localhost:3001" className="hover:text-red-500">
-                    Home
-                </a>
-                </li>
-                <li className="mb-4">
-                <a href="#" className="hover:text-red-500">
-                    Profile
-                </a>
-                </li>
-                <li className="mb-4">
-                <a href="#" className="hover:text-red-500">
-                    Settings
-                </a>
-                </li>
-                <li className="mb-4">
-                <a
-                    href="http://localhost:3000"
-                    className="hover:text-red-500 block mb-4"
-                >
-                Logout
-                </a>
-                </li>
-            </ul>
-            </nav>
-        </div>
+        <SideBar user={user}>
+        {/* ส่วน Main Content ของหน้าแชต */}
         <div className="flex-1 flex flex-col min-h-screen bg-[linear-gradient(180deg,_#222222_0%,_#222222_70%,_#AC1B2D_100%)] border-8 border-black">
             <div className="flex-1 overflow-y-auto p-4">
             {messages.map((msg, i) => (
@@ -126,7 +101,7 @@ function ChatPage({ initialPrompt }) {
             </div>
             </div>
         </div>
-        </div>
+        </SideBar>
     );
 }
 

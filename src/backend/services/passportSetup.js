@@ -1,21 +1,35 @@
-// backend/services/passportSetup.js
+// services/passportSetup.js
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const keys = require("../config/keys");
-const User = require("../models/User");
 
-// กำหนด serialize/deserialize
+// สำหรับตัวอย่างนี้เก็บข้อมูลผู้ใช้ในหน่วยความจำ (in-memory)
+let users = [];
+
+// ฟังก์ชันค้นหาหรือสร้างผู้ใช้
+function findOrCreateUser(profile) {
+  let user = users.find(u => u.googleId === profile.id);
+  if (!user) {
+    user = {
+      id: (Math.random() + 1).toString(36).substring(7),
+      googleId: profile.id,
+      displayName: profile.displayName,
+      email: profile.emails?.[0]?.value,
+      photo: profile.photos?.[0]?.value
+    };
+    users.push(user);
+  }
+  return user;
+}
+
+// ตั้งค่า serialize และ deserialize
 passport.serializeUser((user, done) => {
   done(null, user.id);
 });
 
-passport.deserializeUser(async (id, done) => {
-  try {
-    const user = await User.findById(id);
-    done(null, user);
-  } catch (err) {
-    done(err, null);
-  }
+passport.deserializeUser((id, done) => {
+  const user = users.find(u => u.id === id);
+  done(null, user || null);
 });
 
 // ตั้งค่า Google Strategy
@@ -24,26 +38,11 @@ passport.use(
     {
       clientID: keys.googleClientID,
       clientSecret: keys.googleClientSecret,
-      callbackURL: "http://localhost:3001/auth/google/callback"
+      callbackURL: "/auth/google/callback" // ตรวจสอบให้ตรงกับ Authorized Redirect URI ใน Google Cloud Console
     },
-    async (accessToken, refreshToken, profile, done) => {
-      try {
-        // ค้นหาผู้ใช้ในฐานข้อมูลด้วย googleId
-        let user = await User.findOne({ googleId: profile.id });
-        if (user) {
-          return done(null, user);
-        }
-        // ถ้าไม่พบ ให้สร้างผู้ใช้ใหม่
-        user = await new User({
-          googleId: profile.id,
-          displayName: profile.displayName,
-          email: profile.emails[0].value,
-          image: profile.photos[0].value
-        }).save();
-        return done(null, user);
-      } catch (err) {
-        return done(err, null);
-      }
+    (accessToken, refreshToken, profile, done) => {
+      const user = findOrCreateUser(profile);
+      return done(null, user);
     }
   )
 );
