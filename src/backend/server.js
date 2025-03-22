@@ -1,8 +1,9 @@
 // backend/server.js
+require('dotenv').config();
+const keys = require("./config/keys");
 const express = require("express");
 const session = require("express-session");
 const passport = require("passport");
-const keys = require("./config/keys");
 const cors = require("cors");
 
 // เรียกใช้การตั้งค่า Passport (Google Strategy)
@@ -41,7 +42,7 @@ app.get("/", (req, res) => {
   `);
 });
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

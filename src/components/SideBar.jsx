@@ -2,6 +2,10 @@
 import React from "react";
 
 function SideBar({ user, children }) {
+
+    console.log('Full User Object:', user);
+    const userName = user?.name || 'User';
+    const userEmail = user?.email || 'No email';
     return (
         <div className="flex h-screen bg-gradient-to-b from-[#0f0f0f] to-[#1a1a1a] text-white">
         {/* ส่วน Sidebar */}
@@ -16,8 +20,8 @@ function SideBar({ user, children }) {
                         <div className="p-1 rounded-lg bg-gradient-to-r from-red-500 via-yellow-500 to-blue-500 animate-gradient-x bg-[length:200%_200%] w-fit">
                         {/* เนื้อหาภายในที่มีพื้นหลังแบบเข้ม */}
                             <div className="p-2 bg-[#222222] rounded">
-                                <p className="text-sm text-gray-300">{user.displayName}</p>
-                                <p className="text-sm text-gray-300">{user.email}</p>
+                                <p className="text-sm text-gray-300">{userName}</p>
+                                <p className="text-sm text-gray-300">{userEmail}</p>
                             </div>
                         </div>
                     </div>
