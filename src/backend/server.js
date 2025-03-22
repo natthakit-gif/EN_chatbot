@@ -21,7 +21,7 @@ app.use(cors({
 
 // ใช้ express-session เพื่อจัดการ session
 app.use(session({
-  secret: 'someRandomCookieKey',
+  secret: keys.cookieKey,
   resave: false,
   saveUninitialized: false,
   cookie: { maxAge: 24 * 60 * 60 * 1000 },
