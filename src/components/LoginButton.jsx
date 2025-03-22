@@ -9,7 +9,7 @@ function LoginButton() {
     return (
         <div className="flex flex-col items-center justify-center w-screen h-screen bg-gradient-to-r from-blue-500 to-purple-500 text-white">
             <div className="text-center">
-                <h1 className="text-4xl font-bold mb-4">
+                <h1 className="typewriter text-4xl font-bold mb-4">
                 Welcome to RagChatbot
                 </h1>
                 <p className="text-xl mb-8">
